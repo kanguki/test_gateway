@@ -1,0 +1,63 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport"
+        content="width=device-width, user-scalable=no, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0">
+  <meta http-equiv="X-UA-Compatible" content="ie=edge">
+  <title>Document</title>
+</head>
+<body>
+<select id="topic" name="topic">
+  <option value="sang">sang</option>
+  <option value="trua">trua</option>
+  <option value="chieu">chieu</option>
+  <option value="toi">toi</option>
+</select>
+<br>
+  <input id="key_1" placeholder="key">
+  <input id="value_1" placeholder="value">
+<div id="data">
+</div>
+<button onClick="addAnotherKeyValuePair()">Add another</button>
+<button onClick="sendMsg()">Send msg</button>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/3.0.5/socket.io.js"></script>
+<script>
+  const topic = 'sang';
+  document.getElementById('topic').value = topic;
+  let no = 1;
+  const socket = io("http://localhost:3000");
+  function addAnotherKeyValuePair(){
+    no++;
+    const newPair = document.createElement("span");
+    const newKey = document.createElement("input");
+    newKey.setAttribute("id",`key_${no}`);
+    newPair.appendChild(newKey);
+    const newValue = document.createElement("input");
+    newValue.setAttribute("id",`value_${no}`);
+    newPair.appendChild(newValue);
+    let br = document.createElement("br");
+    newPair.appendChild(br);
+    document.getElementById('data').appendChild(newPair);
+  }
+  function sendMsg() {
+    const topic = document.getElementById("topic").value;
+    let data = ''
+    for (let i = 1; i<=no ; i++) {
+      const key = document.getElementById(`key_${i}`).value;
+      const value = document.getElementById(`value_${i}`).value;
+      if (key !== "" && value !== "") {
+        data+= `"${key}":"${value}",`
+      }
+    }
+    data = data.slice(0,-1);
+    data = `{${data}}`
+    socket.emit(topic, data);
+  }
+  socket.on(document.getElementById("topic").value,data=>{
+    console.log(`Response from server: %c${data}`, 'color:red')
+  })
+</script>
+</body>
+</html>
